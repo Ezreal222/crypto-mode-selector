@@ -1,0 +1,117 @@
+{
+  "primitive": "Block Cipher Modes of Operation",
+  "description": "Schemes for encrypting multi-block messages using a block cipher (e.g., AES).",
+  "columns": [
+    "mode_type",
+    "runtime_efficiency",
+    "security_level",
+    "random_access_decryption",
+    "parallel_encryption",
+    "parallel_decryption",
+    "iv_required",
+    "error_propagation",
+    "preprocessing_possible"
+  ],
+  "column_labels": {
+    "mode_type": "Block or Stream",
+    "runtime_efficiency": "Runtime Efficiency",
+    "security_level": "Security Level",
+    "random_access_decryption": "Random Access Decryption",
+    "parallel_encryption": "Parallelizable Encryption",
+    "parallel_decryption": "Parallelizable Decryption",
+    "iv_required": "IV/Nonce Required",
+    "error_propagation": "Error Propagation Scope",
+    "preprocessing_possible": "Keystream Preprocessing Possible"
+  },
+  "column_descriptions": {
+    "mode_type": "Whether the mode operates as a block cipher or a stream cipher.",
+    "runtime_efficiency": "Relative speed of encryption/decryption.",
+    "security_level": "What security notion the mode achieves (assuming the underlying cipher is a PRF/PRP).",
+    "random_access_decryption": "Whether you can decrypt any single block without decrypting all previous blocks.",
+    "parallel_encryption": "Whether encryption of different blocks can be computed simultaneously.",
+    "parallel_decryption": "Whether decryption of different blocks can be computed simultaneously.",
+    "iv_required": "Whether the mode requires a random initialization vector or nonce.",
+    "error_propagation": "How many plaintext blocks are corrupted if a single ciphertext block is altered.",
+    "preprocessing_possible": "Whether the pseudo-random keystream can be generated before the plaintext is known."
+  },
+  "schemes": [
+    {
+      "name": "ECB",
+      "full_name": "Electronic Codebook",
+      "mode_type": "block",
+      "runtime_efficiency": "fastest",
+      "security_level": "none",
+      "random_access_decryption": true,
+      "parallel_encryption": true,
+      "parallel_decryption": true,
+      "iv_required": false,
+      "error_propagation": "1_block",
+      "preprocessing_possible": false
+    },
+    {
+      "name": "CBC",
+      "full_name": "Cipher Block Chaining",
+      "mode_type": "block",
+      "runtime_efficiency": "fast",
+      "security_level": "IND-CPA",
+      "random_access_decryption": false,
+      "parallel_encryption": false,
+      "parallel_decryption": true,
+      "iv_required": true,
+      "error_propagation": "2_blocks",
+      "preprocessing_possible": false
+    },
+    {
+      "name": "OFB",
+      "full_name": "Output Feedback",
+      "mode_type": "stream",
+      "runtime_efficiency": "fast",
+      "security_level": "IND-CPA",
+      "random_access_decryption": false,
+      "parallel_encryption": false,
+      "parallel_decryption": false,
+      "iv_required": true,
+      "error_propagation": "1_block",
+      "preprocessing_possible": true
+    },
+    {
+      "name": "CTR",
+      "full_name": "Counter Mode",
+      "mode_type": "stream",
+      "runtime_efficiency": "fastest",
+      "security_level": "IND-CPA",
+      "random_access_decryption": true,
+      "parallel_encryption": true,
+      "parallel_decryption": true,
+      "iv_required": true,
+      "error_propagation": "1_block",
+      "preprocessing_possible": true
+    },
+    {
+      "name": "CFB",
+      "full_name": "Cipher Feedback",
+      "mode_type": "stream",
+      "runtime_efficiency": "fast",
+      "security_level": "IND-CPA",
+      "random_access_decryption": false,
+      "parallel_encryption": false,
+      "parallel_decryption": true,
+      "iv_required": true,
+      "error_propagation": "2_blocks",
+      "preprocessing_possible": false
+    },
+    {
+      "name": "GCM",
+      "full_name": "Galois/Counter Mode",
+      "mode_type": "stream",
+      "runtime_efficiency": "fastest",
+      "security_level": "IND-CCA+AUTH",
+      "random_access_decryption": true,
+      "parallel_encryption": true,
+      "parallel_decryption": true,
+      "iv_required": true,
+      "error_propagation": "all_fail",
+      "preprocessing_possible": true
+    }
+  ]
+}
