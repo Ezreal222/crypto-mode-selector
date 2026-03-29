@@ -62,11 +62,11 @@ The generated tree has a maximum depth of 3 questions and correctly identifies a
 
 ```
 Q1: Error propagation?
-├── 1 block → Q2: IV required?
-│   ├── No  → ECB 
-│   └── Yes → Q3: Parallel decryption?
-│       ├── No  → OFB
-│       └── Yes → CTR
+├── 1 block → Q2: Type of cipher operation?
+│   ├── Block  → ECB 
+│   └── Stream → Q3: Speed?
+│       ├── Fast  → OFB
+│       └── Fastest → CTR
 ├── 2 blocks → Q2: Block or stream?
 │   ├── Block  → CBC
 │   └── Stream → CFB
