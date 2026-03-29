@@ -281,7 +281,7 @@ def main():
     print("Decision tree saved to tree.json")
     print()
 
-    # Print feature selection order (for the presentation)
+    # Print feature selection order 
     print("Feature split order (by information gain):")
     _print_split_order(tree, level=1)
 
