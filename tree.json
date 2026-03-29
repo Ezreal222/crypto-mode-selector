@@ -1,0 +1,171 @@
+{
+  "primitive": "Block Cipher Modes of Operation",
+  "tree": {
+    "type": "question",
+    "feature": "error_propagation",
+    "text": "If a single ciphertext block is corrupted during transmission, what error behavior is acceptable?",
+    "children": {
+      "Only the corrupted block is affected (minimal propagation)": {
+        "type": "question",
+        "feature": "mode_type",
+        "text": "What type of cipher operation do you prefer?",
+        "children": {
+          "Block cipher (processes fixed-size blocks)": {
+            "type": "leaf",
+            "recommendations": [
+              "ECB"
+            ],
+            "full_names": {
+              "ECB": "Electronic Codebook"
+            },
+            "warning": "WARNING: ECB is insecure! It leaks block equality patterns. Only use for testing or non-sensitive data.",
+            "_raw_value": "block"
+          },
+          "Stream cipher (processes data as a continuous stream)": {
+            "type": "question",
+            "feature": "runtime_efficiency",
+            "text": "How important is raw encryption/decryption speed?",
+            "children": {
+              "Fast is fine (don't need absolute fastest)": {
+                "type": "leaf",
+                "recommendations": [
+                  "OFB"
+                ],
+                "full_names": {
+                  "OFB": "Output Feedback"
+                },
+                "warning": null,
+                "_raw_value": "fast"
+              },
+              "Maximum speed (need the fastest possible)": {
+                "type": "leaf",
+                "recommendations": [
+                  "CTR"
+                ],
+                "full_names": {
+                  "CTR": "Counter Mode"
+                },
+                "warning": null,
+                "_raw_value": "fastest"
+              }
+            },
+            "depth": 2,
+            "_raw_value": "stream"
+          }
+        },
+        "depth": 1,
+        "_raw_value": "1_block"
+      },
+      "The corrupted block and the next block are affected": {
+        "type": "question",
+        "feature": "mode_type",
+        "text": "What type of cipher operation do you prefer?",
+        "children": {
+          "Block cipher (processes fixed-size blocks)": {
+            "type": "leaf",
+            "recommendations": [
+              "CBC"
+            ],
+            "full_names": {
+              "CBC": "Cipher Block Chaining"
+            },
+            "warning": null,
+            "_raw_value": "block"
+          },
+          "Stream cipher (processes data as a continuous stream)": {
+            "type": "leaf",
+            "recommendations": [
+              "CFB"
+            ],
+            "full_names": {
+              "CFB": "Cipher Feedback"
+            },
+            "warning": null,
+            "_raw_value": "stream"
+          }
+        },
+        "depth": 1,
+        "_raw_value": "2_blocks"
+      },
+      "The entire message is rejected (authentication fails)": {
+        "type": "leaf",
+        "recommendations": [
+          "GCM"
+        ],
+        "full_names": {
+          "GCM": "Galois/Counter Mode"
+        },
+        "warning": null,
+        "_raw_value": "all_fail"
+      }
+    },
+    "depth": 0
+  },
+  "question_map": {
+    "security_level": {
+      "text": "What level of security do you need?",
+      "options": {
+        "IND-CCA+AUTH": "Authenticated encryption (confidentiality + integrity + tamper detection)",
+        "IND-CPA": "Standard encryption (confidentiality only, secure against chosen-plaintext attacks)",
+        "none": "No security needed (just encoding / testing purposes)"
+      }
+    },
+    "parallel_encryption": {
+      "text": "Do you need to encrypt data in parallel (e.g., on multi-core hardware or GPUs)?",
+      "options": {
+        "true": "Yes",
+        "false": "No"
+      }
+    },
+    "parallel_decryption": {
+      "text": "Do you need to decrypt data in parallel?",
+      "options": {
+        "true": "Yes",
+        "false": "No"
+      }
+    },
+    "random_access_decryption": {
+      "text": "Do you need to decrypt individual blocks without processing the entire message (random access)?",
+      "options": {
+        "true": "Yes",
+        "false": "No"
+      }
+    },
+    "preprocessing_possible": {
+      "text": "Do you want to pre-compute the keystream before the actual plaintext is available?",
+      "options": {
+        "true": "Yes",
+        "false": "No"
+      }
+    },
+    "mode_type": {
+      "text": "What type of cipher operation do you prefer?",
+      "options": {
+        "block": "Block cipher (processes fixed-size blocks)",
+        "stream": "Stream cipher (processes data as a continuous stream)"
+      }
+    },
+    "error_propagation": {
+      "text": "If a single ciphertext block is corrupted during transmission, what error behavior is acceptable?",
+      "options": {
+        "1_block": "Only the corrupted block is affected (minimal propagation)",
+        "2_blocks": "The corrupted block and the next block are affected",
+        "all_fail": "The entire message is rejected (authentication fails)"
+      }
+    },
+    "iv_required": {
+      "text": "Is it acceptable for your system to generate and transmit a random initialization vector (IV) with each message?",
+      "options": {
+        "true": "Yes",
+        "false": "No"
+      }
+    },
+    "runtime_efficiency": {
+      "text": "How important is raw encryption/decryption speed?",
+      "options": {
+        "fastest": "Maximum speed (need the fastest possible)",
+        "fast": "Fast is fine (don't need absolute fastest)"
+      }
+    }
+  }
+}

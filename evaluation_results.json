@@ -1,0 +1,52 @@
+{
+  "experiment_a": {
+    "name": "Experiment A: Perfect Knowledge",
+    "total": 1000,
+    "correct": 1000,
+    "accuracy": 1.0,
+    "per_scheme": {
+      "GCM": {
+        "correct": 175,
+        "total": 175
+      },
+      "ECB": {
+        "correct": 166,
+        "total": 166
+      },
+      "OFB": {
+        "correct": 162,
+        "total": 162
+      },
+      "CBC": {
+        "correct": 172,
+        "total": 172
+      },
+      "CFB": {
+        "correct": 160,
+        "total": 160
+      },
+      "CTR": {
+        "correct": 165,
+        "total": 165
+      }
+    }
+  },
+  "experiment_b": {
+    "name": "Experiment B: Partial Knowledge (unknown_prob=0.3)",
+    "total": 1000,
+    "top1_correct": 670,
+    "top1_accuracy": 0.67,
+    "top3_correct": 962,
+    "top3_accuracy": 0.962,
+    "in_list": 1000,
+    "in_list_accuracy": 1.0
+  },
+  "experiment_c": {
+    "name": "Experiment C: Random Baseline",
+    "total": 1000,
+    "correct": 161,
+    "accuracy": 0.161,
+    "expected": 0.16666666666666666
+  },
+  "improvement_over_random": 0.839
+}
