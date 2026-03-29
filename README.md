@@ -63,7 +63,7 @@ The generated tree has a maximum depth of 3 questions and correctly identifies a
 ```
 Q1: Error propagation?
 ├── 1 block → Q2: IV required?
-│   ├── No  → ECB ⚠
+│   ├── No  → ECB 
 │   └── Yes → Q3: Parallel decryption?
 │       ├── No  → OFB
 │       └── Yes → CTR
