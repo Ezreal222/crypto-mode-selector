@@ -97,6 +97,121 @@ def _friendly_val(feature: str, val) -> str:
 
 # ─── Tree Traversal ──────────────────────────────────────────────────────────
 
+def _merge_leaf_into(
+    recs: list[str],
+    full_names: dict,
+    warnings: list[str],
+    node: dict,
+) -> None:
+    """Merge a leaf node's outputs into accumulators (in place)."""
+    for r in node["recommendations"]:
+        if r not in recs:
+            recs.append(r)
+    full_names.update(node.get("full_names", {}))
+    if node.get("warning"):
+        warnings.append(node["warning"])
+
+
+def traverse_frontier(
+    frontier: list[dict],
+    table_schemes: list[dict],
+    column_labels: dict,
+    question_num: int,
+) -> tuple[list[str], dict, str | None]:
+    """
+    Walk multiple active subtrees in parallel (e.g. after \"I don't know\").
+
+    Nodes that share the same `feature` are asked once; answers fan out to every
+    subtree that uses that question, so the user never sees duplicate prompts.
+    """
+    frontier = [n for n in frontier if n is not None]
+    if not frontier:
+        return [], {}, None
+
+    all_recs: list[str] = []
+    all_full_names: dict = {}
+    all_warnings: list[str] = []
+    remaining: list[dict] = []
+
+    for node in frontier:
+        if node["type"] == "leaf":
+            _merge_leaf_into(all_recs, all_full_names, all_warnings, node)
+        else:
+            remaining.append(node)
+
+    if not remaining:
+        warning = "; ".join(all_warnings) if all_warnings else None
+        return all_recs, all_full_names, warning
+
+    # One question feature at a time; carry other features until later
+    by_feature: dict[str, list[dict]] = {}
+    for n in remaining:
+        by_feature.setdefault(n["feature"], []).append(n)
+
+    feat = sorted(by_feature.keys())[0]
+    nodes_same = by_feature[feat]
+    carry = [n for f, ns in by_feature.items() if f != feat for n in ns]
+
+    ref = nodes_same[0]
+    question_text = ref["text"]
+    ref_children = {k: v for k, v in ref["children"].items() if not k.startswith("_")}
+    option_labels = list(ref_children.keys())
+
+    print(f"  Q{question_num}: {question_text}")
+    print()
+
+    for i, label in enumerate(option_labels, 1):
+        print(f"    {i}. {label}")
+    idk_num = len(option_labels) + 1
+    print(f"    {idk_num}. I don't know")
+    print()
+
+    while True:
+        try:
+            raw = input(f"  Your choice (1-{idk_num}): ").strip()
+            choice = int(raw)
+            if 1 <= choice <= idk_num:
+                break
+            print(f"  Please enter a number between 1 and {idk_num}.")
+        except ValueError:
+            print(f"  Please enter a number between 1 and {idk_num}.")
+        except (EOFError, KeyboardInterrupt):
+            print("\n  Goodbye!")
+            sys.exit(0)
+
+    print()
+
+    new_frontier: list[dict] = []
+
+    if choice == idk_num:
+        for n in nodes_same:
+            ch = {k: v for k, v in n["children"].items() if not k.startswith("_")}
+            for child in ch.values():
+                new_frontier.append(child)
+    else:
+        chosen_label = option_labels[choice - 1]
+        for n in nodes_same:
+            ch = n["children"]
+            if chosen_label in ch:
+                new_frontier.append(ch[chosen_label])
+
+    new_frontier.extend(carry)
+
+    sub_recs, sub_fn, sub_warn = traverse_frontier(
+        new_frontier, table_schemes, column_labels, question_num + 1
+    )
+
+    for r in sub_recs:
+        if r not in all_recs:
+            all_recs.append(r)
+    all_full_names.update(sub_fn)
+    if sub_warn:
+        all_warnings.append(sub_warn)
+
+    warning = "; ".join(all_warnings) if all_warnings else None
+    return all_recs, all_full_names, warning
+
+
 def traverse_tree(node: dict, table_schemes: list[dict], column_labels: dict,
                   question_num: int = 1) -> tuple[list[str], dict, str | None]:
     """
@@ -138,25 +253,10 @@ def traverse_tree(node: dict, table_schemes: list[dict], column_labels: dict,
 
     print()
 
-    # "I don't know" — collect all reachable leaves
+    # "I don't know" — explore all branches; merge same feature into one prompt
     if choice == idk_num:
-        all_recs = []
-        all_full_names = {}
-        all_warnings = []
-
-        for label, child_node in children.items():
-            recs, fnames, warn = traverse_tree(
-                child_node, table_schemes, column_labels, question_num + 1
-            )
-            for r in recs:
-                if r not in all_recs:
-                    all_recs.append(r)
-            all_full_names.update(fnames)
-            if warn:
-                all_warnings.append(warn)
-
-        warning = "; ".join(all_warnings) if all_warnings else None
-        return all_recs, all_full_names, warning
+        child_list = list(children.values())
+        return traverse_frontier(child_list, table_schemes, column_labels, question_num + 1)
 
     # Normal answer — traverse the chosen branch
     chosen_label = option_labels[choice - 1]
